@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Sandbox 2D</title>
+    <style>
+        body { margin: 0; background: #1a1a1a; color: white; overflow: hidden; font-family: sans-serif; }
+        #ui { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; z-index: 10; }
+        canvas { display: block; background: #222; }
+        button { background: #ff4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ff6666; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        bradar usa i bottoni per spawnare roba 🤝
+        <br><br>
+        <button onclick="spawnBox()">Crea Blocco</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let entities = [];
+
+        class Box {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 50;
+                this.height = 50;
+                this.vy = 0;
+                this.gravity = 0.5;
+                this.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+            }
+
+            update() {
+                this.vy += this.gravity;
+                this.y += this.vy;
+
+                // Pavimento
+                if (this.y + this.height > canvas.height - 50) {
+                    this.y = canvas.height - 50 - this.height;
+                    this.vy = -this.vy * 0.3; // Rimbalzo leggero
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+        }
+
+        function spawnBox() {
+            entities.push(new Box(Math.random() * (canvas.width - 50), 50));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Disegna il pavimento
+            ctx.fillStyle = '#444';
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+            entities.forEach(entity => {
+                entity.update();
+                entity.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
